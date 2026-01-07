@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+    <title>WebXR Deneyimi</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#D0BB95",
+                        "background-light": "#f7f7f6",
+                        "background-dark": "#1d1a15"
+                    },
+                    fontFamily: {
+                        display: ["Space Grotesk", "sans-serif"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        lg: "2rem",
+                        xl: "3rem",
+                        full: "9999px"
+                    },
+                    animation: {
+                        float: "float 6s ease-in-out infinite"
+                    },
+                    keyframes: {
+                        float: {
+                            "0%, 100%": { transform: "translateY(0)" },
+                            "50%": { transform: "translateY(-20px)" }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    
+    <style>
+        body {
+            min-height: 100dvh;
+        }
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+        }
+        .pt-safe {
+            padding-top: env(safe-area-inset-top, 20px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: #1d1a15;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid #D0BB95;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display antialiased selection:bg-primary selection:text-white min-h-[100dvh] w-full flex flex-col overflow-hidden relative">
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p class="text-white/60 mt-4 text-sm">Yükleniyor...</p>
+        <p id="debug-id" class="text-white/20 text-xs mt-2 font-mono"></p>
+    </div>
+
+    <!-- Background Decorative Elements -->
+    <div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] pointer-events-none opacity-50 dark:opacity-30"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-purple-500/20 rounded-full blur-[80px] pointer-events-none opacity-50 dark:opacity-20"></div>
+
+    <!-- Top Bar -->
+    <div class="w-full p-4 pt-safe flex justify-between items-center z-20">
+        <div class="flex items-center gap-2">
+            <!-- Logo placeholder - will be filled dynamically -->
+            <img id="project-logo" src="" alt="Logo" class="h-8 hidden" />
+        </div>
+        <button class="flex items-center justify-center size-10 rounded-full text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+            <span class="material-symbols-outlined">help</span>
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col items-center justify-center px-6 relative z-10 w-full max-w-md mx-auto overflow-y-auto">
+        <!-- Hero Visual -->
+        <div class="relative w-full max-w-[240px] aspect-square flex items-center justify-center mb-6 shrink-0">
+            <div class="relative w-full h-full animate-float">
+                <div class="absolute inset-0 bg-primary/30 rounded-full blur-2xl"></div>
+                <div class="relative w-full h-full rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-black/50 backdrop-blur-sm">
+                    <div class="w-full h-full bg-gradient-to-br from-primary/20 to-purple-500/20"></div>
+                    <!-- Overlay Icon -->
+                    <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-background-dark/80 to-transparent">
+                        <div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/20 shadow-lg">
+                            <span class="material-symbols-outlined text-white text-5xl">view_in_ar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typography -->
+        <div class="text-center space-y-2 shrink-0">
+            <h2 class="text-primary font-bold tracking-widest text-xs uppercase mb-1">WebXR Deneyimi</h2>
+            <h1 id="project-title" class="text-gray-900 dark:text-white text-2xl md:text-3xl leading-tight font-bold">
+                Geleceği Keşfet
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-normal leading-relaxed max-w-[320px] mx-auto pt-1">
+                Çevrenizi etkileşimli nesnelerle zenginleştirmek için kameranıza erişim izni verin.
+            </p>
+        </div>
+    </div>
+
+    <!-- Bottom Action Area -->
+    <div class="w-full p-4 pb-safe z-20 bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark dark:to-transparent pt-8 shrink-0">
+        <div class="max-w-md mx-auto flex flex-col gap-3">
+            <!-- Privacy Hint -->
+            <div class="flex items-center justify-center gap-1.5 opacity-60 mb-1">
+                <span class="material-symbols-outlined text-[14px] text-gray-500 dark:text-gray-400">verified_user</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Verileriniz cihazınızda işlenir</span>
+            </div>
+
+            <!-- Primary Button -->
+            <button id="btn-camera" class="group relative w-full h-14 bg-primary text-white rounded-xl font-bold text-lg shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 overflow-hidden">
+                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+                <div class="relative flex items-center justify-center gap-3">
+                    <span class="material-symbols-outlined">videocam</span>
+                    <span>Kameraya İzin Ver</span>
+                </div>
+            </button>
+
+            <!-- Secondary Action -->
+            <button id="btn-skip" class="w-full py-3 text-gray-500 dark:text-gray-400 font-medium hover:text-gray-900 dark:hover:text-white transition-colors text-base">
+                Şimdilik Atla
+            </button>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Get project ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('id');
+        
+        // Debug info
+        document.getElementById('debug-id').textContent = `ID: ${projectId || 'YOK'}`;
+
+        if (!projectId) {
+            // Redirect to home page if no project ID
+            console.error('Proje ID bulunamadı! URL:', window.location.href);
+            
+            // Show error in UI instead of redirecting
+            document.getElementById('loading-overlay').innerHTML = `
+                <div class="text-center p-6">
+                    <span class="material-symbols-outlined text-red-500 text-5xl mb-4">error</span>
+                    <h3 class="text-white text-xl font-bold mb-2">Proje ID Bulunamadı</h3>
+                    <p class="text-white/60 mb-6">URL parametresi eksik: ${window.location.search}</p>
+                    <a href="index.html" class="bg-primary text-background-dark font-bold py-3 px-6 rounded-xl hover:bg-white transition-colors">
+                        Ana Sayfaya Dön
+                    </a>
+                </div>
+            `;
+            // window.location.href = 'index.html';
+        }
+
+        // Load project data
+        async function loadProject() {
+            try {
+                const response = await fetch('projects.json');
+                const projects = await response.json();
+                const project = projects[projectId];
+
+                if (!project) {
+                    alert('Proje bulunamadı: ' + projectId);
+                    return;
+                }
+
+                // Update UI with project data
+                document.getElementById('project-title').textContent = project.projectName;
+                
+                // Update theme color
+                document.documentElement.style.setProperty('--primary', project.themeColor);
+                
+                // Show logo if exists
+                if (project.logo) {
+                    const logoEl = document.getElementById('project-logo');
+                    logoEl.src = project.assetsPath + project.logo;
+                    logoEl.classList.remove('hidden');
+                }
+
+                // Hide loading overlay
+                document.getElementById('loading-overlay').classList.add('hidden');
+
+            } catch (error) {
+                console.error('Proje yüklenirken hata:', error);
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }
+        }
+
+        // Request camera permission
+        async function requestCameraPermission() {
+            // Check for secure context
+            if (!window.isSecureContext) {
+                alert('HATA: Kamera erişimi için HTTPS bağlantısı gereklidir.\n\nEğer yerel ağda (192.168.x.x) test yapıyorsanız, tarayıcı güvenlik kısıtlamaları nedeniyle kamera açılamaz.\n\nÇözüm: Cihazı USB ile bağlayıp "localhost" üzerinden test edin veya HTTPS destekli bir sunucu (ngrok vb.) kullanın.');
+                return;
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('HATA: Tarayıcınız kamera erişimini desteklemiyor veya güvenli olmayan bir bağlantı (HTTP) kullanıyorsunuz.');
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                stream.getTracks().forEach(track => track.stop());
+                navigateToSelect();
+            } catch (error) {
+                console.error('Kamera izni hatası:', error);
+                alert('Kamera izni alınamadı:\n' + error.name + ': ' + error.message + '\n\nLütfen tarayıcı ayarlarından kamera iznini kontrol edin.');
+            }
+        }
+
+        function navigateToSelect() {
+            window.location.href = `select?id=${projectId}`;
+        }
+
+        // Event Listeners
+        document.getElementById('btn-camera').addEventListener('click', requestCameraPermission);
+        document.getElementById('btn-skip').addEventListener('click', navigateToSelect);
+
+        // Initialize
+        if (projectId) {
+            loadProject();
+        }
+    </script>
+</body>
+</html>

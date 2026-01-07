@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WebXR Hoşgeldiniz Ekranı</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#D0BB95", "background-light": "#f7f7f6", "background-dark": "#1d1a15"}, fontFamily: {display: "Space Grotesk"}, borderRadius: {DEFAULT: "1rem", lg: "2rem", xl: "3rem", full: "9999px"}, animation: {float: "float 6s ease-in-out infinite"}, keyframes: {float: {"0%, 100%": {transform: "translateY(0)"}, "50%": {transform: "translateY(-20px)"}}}}}};</script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased selection:bg-primary selection:text-white h-screen w-full flex flex-col overflow-hidden relative group/design-root">
+<!-- Background Decorative Elements -->
+<div class="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] pointer-events-none opacity-50 dark:opacity-30"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-purple-500/20 rounded-full blur-[80px] pointer-events-none opacity-50 dark:opacity-20"></div>
+<!-- Top Bar (Minimal) -->
+<div class="w-full p-4 flex justify-between items-center z-20">
+<div class="flex items-center gap-2">
+<!-- Placeholder for Logo if needed, keeping it empty for clean look -->
+</div>
+<button class="flex items-center justify-center size-10 rounded-full text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+<!-- Main Content -->
+<div class="flex-1 flex flex-col items-center justify-center px-6 relative z-10 w-full max-w-md mx-auto">
+<!-- Hero Visual -->
+<div class="relative w-full max-w-[280px] aspect-square flex items-center justify-center mb-8">
+<!-- Central Glowing Orb/Container -->
+<div class="relative w-64 h-64 animate-float">
+<div class="absolute inset-0 bg-primary/30 rounded-full blur-2xl"></div>
+<!-- Hero Image -->
+<div class="relative w-full h-full rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-black/50 backdrop-blur-sm">
+<div class="w-full h-full bg-cover bg-center opacity-80 mix-blend-screen" data-alt="Abstract neon blue holographic cube structure representing AR technology" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBTGyPCm4tSPL_Qo7vyepc0JIVOo9vIgMoNbtog3lP4RrZRGAzdn5o0W4-3xJyByTRv_UEOHKpD5FG8tA_S48yDEecLyFleANYOxRi_lsftHeL3q--UQFyZJlO_zszEU5UYFBs60jYj6IoIBHXykeV3STXg4Q2dJQ7TPpGDlTwwLfXWzUehC7z6Gxpba6lBcN1w9Cv4BevpzhIrJ4sdEwjY3ZL5AMDfPNxD4aBMWvIaX6KwFwGnhndGD2fezesu6-rx5vhgCax-xhDX');">
+</div>
+<!-- Overlay Icon -->
+<div class="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-background-dark/80 to-transparent">
+<div class="bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/20 shadow-lg">
+<span class="material-symbols-outlined text-white text-5xl">view_in_ar</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Typography -->
+<div class="text-center space-y-3">
+<h2 class="text-primary font-bold tracking-widest text-sm uppercase mb-1">WebXR Deneyimi</h2>
+<h1 class="text-gray-900 dark:text-white text-[32px] leading-tight font-bold">
+                Geleceği Keşfet
+            </h1>
+<p class="text-gray-600 dark:text-gray-400 text-base font-normal leading-relaxed max-w-[320px] mx-auto pt-2">
+                Çevrenizi etkileşimli nesnelerle zenginleştirmek için kameranıza erişim izni verin.
+            </p>
+</div>
+</div>
+<!-- Bottom Action Area -->
+<div class="w-full p-6 pb-safe z-20 bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark dark:to-transparent pt-12">
+<div class="max-w-md mx-auto flex flex-col gap-4">
+<!-- Privacy Hint -->
+<div class="flex items-center justify-center gap-1.5 opacity-60 mb-1">
+<span class="material-symbols-outlined text-[14px] text-gray-500 dark:text-gray-400">verified_user</span>
+<span class="text-xs text-gray-500 dark:text-gray-400 font-medium">Verileriniz cihazınızda işlenir</span>
+</div>
+<!-- Primary Button -->
+<button class="group relative w-full h-14 bg-primary text-white rounded-xl font-bold text-lg shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 overflow-hidden">
+<div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+<div class="relative flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">videocam</span>
+<span>Kameraya İzin Ver</span>
+</div>
+</button>
+<!-- Secondary Action -->
+<button class="w-full py-3 text-gray-500 dark:text-gray-400 font-medium hover:text-gray-900 dark:hover:text-white transition-colors text-base">
+                Şimdilik Atla
+            </button>
+</div>
+</div>
+<!-- CSS for iPhone Safe Area if viewed on mobile browser -->
+<style>
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+        }
+    </style>
+</body></html>

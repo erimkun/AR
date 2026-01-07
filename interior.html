@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+    <title>İç Mekan 360° Tur</title>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Tailwind Config -->
+    <script src="js/config.js"></script>
+    
+    <style>
+        html, body {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+            touch-action: none;
+        }
+        
+        /* Canvas Styles */
+        #panorama-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* Permission Screen */
+        .permission-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom, #1d1a15, #2a2520);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 24px;
+        }
+        .permission-screen.hidden {
+            display: none;
+        }
+        
+        /* Compass Styles */
+        .compass-container {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+        .compass-needle {
+            transition: transform 0.1s ease-out;
+        }
+        
+        /* Mini Map Styles */
+        .mini-map {
+            width: auto;
+            height: auto;
+            max-width: 140px;
+            max-height: 140px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-dot {
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border: 2px solid white;
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+            z-index: 10;
+        }
+        
+        /* Room selector active state */
+        .room-btn.active {
+            border-color: #D0BB95;
+            transform: scale(1.05);
+        }
+        .room-btn.active .check-icon {
+            display: flex;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+
+<body class="bg-background-dark text-white font-display overflow-hidden h-screen w-screen relative">
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay bg-background-dark z-[100] flex flex-col items-center justify-center">
+        <!-- Icon Container -->
+        <div class="w-24 h-24 mb-4 flex items-center justify-center relative">
+            <span id="loading-icon" class="material-symbols-outlined text-6xl text-primary transition-all duration-500 transform scale-100">home</span>
+        </div>
+        
+        <p class="text-white text-lg font-bold mb-1">Yükleniyor...</p>
+        <p id="loading-progress" class="text-primary text-sm font-medium mb-6">0%</p>
+        
+        <!-- Progress Bar -->
+        <div class="w-64 h-1 bg-white/10 rounded-full overflow-hidden mb-8">
+            <div id="progress-bar" class="h-full bg-primary transition-all duration-300 w-0"></div>
+        </div>
+        
+        <!-- Rotating Text -->
+        <div class="h-6 overflow-hidden relative w-full max-w-md text-center">
+            <div class="animate-text-carousel">
+                <p class="text-white/60 text-sm h-6 flex items-center justify-center">360° Tur hazırlanıyor</p>
+                <p class="text-white/60 text-sm h-6 flex items-center justify-center">Odanın detayları yükleniyor</p>
+                <p class="text-white/60 text-sm h-6 flex items-center justify-center">Lütfen bekleyin...</p>
+                <p class="text-white/60 text-sm h-6 flex items-center justify-center">360° Tur hazırlanıyor</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permission Screen (iOS requirement) -->
+    <div id="permission-screen" class="permission-screen">
+        <div class="text-center max-w-sm">
+            <div class="w-20 h-20 mx-auto mb-6 bg-primary/20 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary text-4xl">360</span>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-3">360° Deneyim</h2>
+            <p class="text-white/60 mb-4">
+                Cihazınızı hareket ettirerek odayı keşfedebilirsiniz.
+            </p>
+            <div class="bg-white/10 rounded-lg p-3 mb-6 text-sm text-white/80 border border-white/5">
+                <div class="flex items-center gap-2 mb-1 text-primary font-bold">
+                    <span class="material-symbols-outlined text-[18px]">smartphone</span>
+                    <span>Kalibrasyon İpucu</span>
+                </div>
+                En iyi deneyim için telefonu dik tutun ve karşınızda bir pencere varmış gibi çevirin.
+            </div>
+            <button id="btn-start-experience" class="w-full py-4 bg-primary text-background-dark font-bold rounded-xl text-lg shadow-lg flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">play_arrow</span>
+                Deneyimi Başlat
+            </button>
+            <button id="btn-skip-gyro" class="w-full py-3 mt-3 text-white/60 font-medium">
+                Dokunarak gezin
+            </button>
+        </div>
+    </div>
+
+    <!-- Panorama Canvas -->
+    <canvas id="panorama-canvas"></canvas>
+
+    <!-- UI Overlay (z-index: 999 as per spec) -->
+    <div class="absolute inset-0 z-50 pointer-events-none">
+        
+        <!-- Top UI Container -->
+        <div class="absolute top-0 left-0 w-full pt-safe p-4 flex items-start justify-between pointer-events-none z-50 gap-2">
+            
+            <!-- Mini Map (Left) -->
+            <div class="mini-map pointer-events-auto shrink-0 relative overflow-hidden">
+                <img id="floorplan-img" src="" alt="Floorplan" class="w-full h-full object-contain p-2 opacity-70" />
+                <!-- User Marker (Dot + View Cone) -->
+                <div id="user-marker" class="absolute w-0 h-0 transition-all duration-100 ease-out" style="top: 50%; left: 50%;">
+                    <!-- View Cone -->
+                    <div id="view-cone" class="absolute top-0 left-0 w-[80px] h-[80px] -translate-x-1/2 -translate-y-1/2 origin-center pointer-events-none drop-shadow-[0_0_2px_rgba(255,255,255,0.8)]">
+                         <div class="w-full h-full bg-[conic-gradient(from_0deg_at_50%_50%,transparent_150deg,rgba(208,187,149,0.8)_180deg,transparent_210deg)]"></div>
+                    </div>
+                    <!-- Dot -->
+                    <div class="w-3 h-3 bg-red-500 rounded-full border-2 border-white absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 shadow-lg shadow-red-500/50 z-10"></div>
+                </div>
+            </div>
+
+            <!-- Current Room Label (Center) -->
+            <div class="bg-black/60 backdrop-blur-xl border border-white/10 rounded-full py-2 px-4 shadow-xl pointer-events-auto mt-2 shrink min-w-0">
+                <p id="current-room-label" class="text-white text-xs sm:text-sm font-medium text-center uppercase tracking-wider truncate">
+                    Yükleniyor...
+                </p>
+            </div>
+
+            <!-- Compass (Right) -->
+            <div class="compass-container bg-black/40 backdrop-blur-md rounded-full p-2 border border-white/10 pointer-events-auto shrink-0">
+                <svg id="compass-needle" class="compass-needle w-full h-full" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                    <!-- N marker -->
+                    <text x="50" y="15" text-anchor="middle" fill="#D0BB95" font-size="12" font-weight="bold">N</text>
+                    <!-- Needle -->
+                    <polygon points="50,20 45,55 50,50 55,55" fill="#D0BB95"/>
+                    <polygon points="50,80 45,55 50,50 55,55" fill="rgba(255,255,255,0.4)"/>
+                    <circle cx="50" cy="50" r="5" fill="#D0BB95"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Bottom UI -->
+        <div class="fixed bottom-0 left-0 w-full flex flex-col items-center px-4 gap-6 pointer-events-auto z-50" style="padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 40px);">
+            <!-- Action Bar -->
+            <div class="w-full flex items-end justify-between gap-4">
+                <!-- Back Button -->
+                <div class="shrink-0 pb-2">
+                    <button onclick="window.history.back()" class="flex h-12 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-[#1d1a15]/90 backdrop-blur-md border border-white/10 text-white gap-2 px-6 hover:bg-white/10 transition-all duration-300 shadow-lg active:scale-95">
+                        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                        <span class="text-sm font-bold leading-normal tracking-wide">Geri Dön</span>
+                    </button>
+                </div>
+
+                <!-- Room Selector -->
+                <div id="room-selector" class="flex-1 flex items-end gap-3 px-2 pb-1 overflow-x-auto overflow-y-hidden no-scrollbar">
+                    <!-- Rooms will be dynamically inserted here -->
+                </div>
+
+                <div class="hidden sm:block w-16"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/interior.js"></script>
+</body>
+</html>

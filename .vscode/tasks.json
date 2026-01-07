@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "append_css",
+			"type": "shell",
+			"command": "Add-Content",
+			"args": [
+				"css/style.css",
+				"\n/* Loader Animations */\n@keyframes fade-cycle {\n    0%, 100% { opacity: 0; transform: scale(0.8); }\n    10%, 90% { opacity: 1; transform: scale(1); }\n}\n\n.animate-fade-cycle {\n    animation: fade-cycle 4.5s infinite;\n}\n\n@keyframes text-slide-up {\n    0%, 20% { transform: translateY(0); }\n    25%, 45% { transform: translateY(-100%); }\n    50%, 70% { transform: translateY(-200%); }\n    75%, 95% { transform: translateY(-300%); }\n    100% { transform: translateY(-400%); } /* Reset point if needed, or adjust keyframes */\n}\n\n/* \n   We have 3 messages. \n   0% -> Msg 1\n   33% -> Msg 2\n   66% -> Msg 3\n   100% -> Msg 1 (Loop)\n*/\n@keyframes text-carousel {\n    0%, 25% { transform: translateY(0); }\n    33%, 58% { transform: translateY(-24px); } /* Assuming 24px height (h-6) */\n    66%, 91% { transform: translateY(-48px); }\n    100% { transform: translateY(-72px); } /* Move to cloned first item then reset instantly */\n}\n\n.animate-text-carousel {\n    animation: text-carousel 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;\n}\n"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		},
+		{
+			"label": "append_css_stack",
+			"type": "shell",
+			"command": "Add-Content",
+			"args": [
+				"css/style.css",
+				"\n/* Stack Card Styles */\n.stack-card {\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    border-radius: 1rem;\n    background-color: #1a2332; /* surface-dark */\n    border: 1px solid rgba(255, 255, 255, 0.1);\n    overflow: hidden;\n    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;\n    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);\n    touch-action: none; /* Important for drag */\n    cursor: grab;\n}\n\n.stack-card:active {\n    cursor: grabbing;\n}\n\n/* Stack depth effect */\n.stack-card:nth-child(1) {\n    z-index: 3;\n    transform: translateY(0) scale(1);\n}\n.stack-card:nth-child(2) {\n    z-index: 2;\n    transform: translateY(10px) scale(0.95);\n    opacity: 0.8;\n}\n.stack-card:nth-child(3) {\n    z-index: 1;\n    transform: translateY(20px) scale(0.90);\n    opacity: 0.6;\n}\n.stack-card:nth-child(n+4) {\n    z-index: 0;\n    transform: translateY(30px) scale(0.85);\n    opacity: 0;\n    pointer-events: none;\n}\n\n/* Fly out animations */\n.fly-out-left {\n    transform: translate(-120%, 20px) rotate(-20deg) !important;\n    opacity: 0 !important;\n    transition: transform 0.4s ease-in, opacity 0.4s ease-in;\n}\n.fly-out-right {\n    transform: translate(120%, 20px) rotate(20deg) !important;\n    opacity: 0 !important;\n    transition: transform 0.4s ease-in, opacity 0.4s ease-in;\n}\n"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "none"
+		}
+	]
+}

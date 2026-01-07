@@ -1,0 +1,57 @@
+{
+  "1101_8": {
+    "projectName": "Acıbadem 1101 Ada 8 Parsel",
+    "themeColor": "#D0BB95",
+    "logo": "",
+    "assetsPath": "assets/projects/1101_8/",
+    "exterior": {
+      "modelAndroid": "1101-8.glb",
+      "modelIOS": "1101_8.usdz",
+      "variants": [
+        { "name": "2+1", "suffix": "", "thumbnail": "plan_01.jpg" },
+        { "name": "3+1", "suffix": "-3+1", "thumbnail": "plan_01.jpg" }
+      ]
+    },
+    "interior": {
+      "startRoom": "salon",
+      "floorplanImage": "plan_01.jpg",
+      "rooms": [
+        {
+          "id": "salon",
+          "name": "Salon",
+          "tex": "Salon01.jpg",
+          "thumbnail": "Salon01.jpg",
+          "mapCoords": { "x": 27, "y": 33 }
+        },
+        {
+          "id": "salon2",
+          "name": "Salon 2",
+          "tex": "Salon02.jpg",
+          "thumbnail": "Salon02.jpg",
+          "mapCoords": { "x": 18    , "y": 54 }
+        },
+        {
+          "id": "mutfak",
+          "name": "Mutfak",
+          "tex": "Mutfak01.jpg",
+          "thumbnail": "Mutfak01.jpg",
+          "mapCoords": { "x": 40, "y": 54 }
+        },
+        {
+          "id": "odalar",
+          "name": "Odalar",
+          "tex": "Odalar.jpg",
+          "thumbnail": "Odalar.jpg",
+          "mapCoords": { "x": 60, "y": 54 }
+        },
+        {
+          "id": "yatak",
+          "name": "Yatak Odası",
+          "tex": "YatakOdası.jpg",
+          "thumbnail": "YatakOdası.jpg",
+          "mapCoords": { "x": 80, "y": 54 }
+        }
+      ]
+    }
+  }
+}

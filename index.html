@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
+    <title>WebXR Gayrimenkul Platformu</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#D0BB95",
+                        "background-light": "#f7f7f6",
+                        "background-dark": "#1d1a15",
+                        "surface-dark": "#2a2520"
+                    },
+                    fontFamily: {
+                        display: ["Space Grotesk", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+    
+    <style>
+        body {
+            min-height: 100dvh;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .project-card {
+            transition: all 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-background-dark font-display antialiased min-h-screen">
+    
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-background-dark/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary">view_in_ar</span>
+                </div>
+                <div>
+                    <h1 class="text-white font-bold text-lg">WebXR Platform</h1>
+                    <p class="text-white/40 text-xs">Gayrimenkul Görüntüleme</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-white/40 bg-white/5 px-3 py-1 rounded-full">v1.0.0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- Hero Section -->
+        <section class="text-center mb-12">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                <span class="text-xs font-medium text-primary uppercase tracking-wide">Sistem Aktif</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
+                Projeleri <span class="text-primary">Keşfedin</span>
+            </h2>
+            <p class="text-white/60 text-lg max-w-xl mx-auto">
+                Artırılmış gerçeklik ile gayrimenkul projelerini inceleyin. Bir proje seçerek deneyime başlayın.
+            </p>
+        </section>
+
+        <!-- Projects Grid -->
+        <section>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-white font-semibold text-lg">Mevcut Projeler</h3>
+                <span id="project-count" class="text-white/40 text-sm">Yükleniyor...</span>
+            </div>
+            
+            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Projects will be loaded here -->
+                <div class="col-span-full flex items-center justify-center py-12">
+                    <div class="text-center">
+                        <div class="w-12 h-12 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p class="text-white/40">Projeler yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="mt-16 p-6 bg-surface-dark rounded-2xl border border-white/10">
+            <h3 class="text-white font-semibold mb-4">Hızlı Erişim</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="welcome?id=1101_8" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                    <span class="material-symbols-outlined text-primary">home</span>
+                    <span class="text-white/80 text-sm">Hoşgeldiniz</span>
+                </a>
+                <a href="select?id=1101_8" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                    <span class="material-symbols-outlined text-primary">apps</span>
+                    <span class="text-white/80 text-sm">Mod Seçimi</span>
+                </a>
+                <a href="exterior?id=1101_8" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                    <span class="material-symbols-outlined text-primary">landscape</span>
+                    <span class="text-white/80 text-sm">Dış Mekan</span>
+                </a>
+                <a href="interior?id=1101_8" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                    <span class="material-symbols-outlined text-primary">360</span>
+                    <span class="text-white/80 text-sm">İç Mekan</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Info Cards -->
+        <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 bg-surface-dark rounded-xl border border-white/10">
+                <span class="material-symbols-outlined text-blue-400 mb-2">phone_iphone</span>
+                <h4 class="text-white font-medium mb-1">Mobil Uyumlu</h4>
+                <p class="text-white/40 text-sm">iOS ve Android cihazlarda AR deneyimi</p>
+            </div>
+            <div class="p-4 bg-surface-dark rounded-xl border border-white/10">
+                <span class="material-symbols-outlined text-green-400 mb-2">download</span>
+                <h4 class="text-white font-medium mb-1">Uygulama Gereksiz</h4>
+                <p class="text-white/40 text-sm">Doğrudan tarayıcıdan çalışır</p>
+            </div>
+            <div class="p-4 bg-surface-dark rounded-xl border border-white/10">
+                <span class="material-symbols-outlined text-purple-400 mb-2">view_in_ar</span>
+                <h4 class="text-white font-medium mb-1">WebXR Destekli</h4>
+                <p class="text-white/40 text-sm">Gelişmiş AR özellikleri</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 mt-16">
+        <div class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
+            <p class="text-white/30 text-sm">© 2025 WebXR Platform</p>
+            <div class="flex items-center gap-4">
+                <a href="README.md" class="text-white/40 hover:text-white text-sm transition-colors">Dokümantasyon</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Load and display projects
+        async function loadProjects() {
+            try {
+                const response = await fetch('projects.json');
+                const projects = await response.json();
+                
+                const grid = document.getElementById('projects-grid');
+                const countEl = document.getElementById('project-count');
+                
+                const projectIds = Object.keys(projects);
+                countEl.textContent = `${projectIds.length} proje`;
+                
+                grid.innerHTML = projectIds.map(id => {
+                    const project = projects[id];
+                    const roomCount = project.interior?.rooms?.length || 0;
+                    const variantCount = project.exterior?.variants?.length || 0;
+                    
+                    return `
+                        <div class="project-card bg-surface-dark rounded-2xl border border-white/10 overflow-hidden">
+                            <!-- Thumbnail -->
+                            <div class="relative h-48 bg-gradient-to-br from-primary/20 to-purple-500/20">
+                                <img src="${project.assetsPath}${project.interior?.rooms?.[0]?.thumbnail || 'plan_01.jpg'}" 
+                                     alt="${project.projectName}"
+                                     class="w-full h-full object-cover opacity-60"
+                                     onerror="this.style.display='none'"
+                                />
+                                <div class="absolute inset-0 bg-gradient-to-t from-surface-dark via-transparent to-transparent"></div>
+                                <div class="absolute top-3 right-3 bg-primary text-background-dark text-xs font-bold px-2 py-1 rounded-lg">
+                                    ${id}
+                                </div>
+                            </div>
+                            
+                            <!-- Content -->
+                            <div class="p-5">
+                                <h4 class="text-white font-bold text-lg mb-2">${project.projectName}</h4>
+                                
+                                <div class="flex items-center gap-4 text-white/40 text-sm mb-4">
+                                    <span class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[16px]">door_front</span>
+                                        ${roomCount} Oda
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[16px]">layers</span>
+                                        ${variantCount} Varyant
+                                    </span>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="flex gap-2">
+                                    <a href="welcome?id=${id}" 
+                                       onclick="console.log('Navigating to project:', '${id}')"
+                                       class="flex-1 bg-primary text-background-dark font-bold py-3 px-4 rounded-xl text-center hover:bg-white transition-colors text-sm">
+                                        Başlat
+                                    </a>
+                                    <a href="exterior?id=${id}" 
+                                       class="flex items-center justify-center w-12 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
+                                       title="Dış Mekan">
+                                        <span class="material-symbols-outlined text-[20px]">landscape</span>
+                                    </a>
+                                    <a href="interior?id=${id}" 
+                                       class="flex items-center justify-center w-12 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
+                                       title="İç Mekan">
+                                        <span class="material-symbols-outlined text-[20px]">360</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Projeler yüklenemedi:', error);
+                document.getElementById('projects-grid').innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <span class="material-symbols-outlined text-red-400 text-4xl mb-4">error</span>
+                        <p class="text-white/60">Projeler yüklenirken hata oluştu</p>
+                        <p class="text-white/40 text-sm mt-2">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize
+        loadProjects();
+    </script>
+</body>
+</html>

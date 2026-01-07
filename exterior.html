@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+    <title>Dış Mekan AR</title>
+    
+    <!-- Model Viewer -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Tailwind Config -->
+    <script src="js/config.js"></script>
+    
+    <style>
+        /* Model Viewer Styles */
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            --poster-color: transparent;
+        }
+        
+        model-viewer::part(default-ar-button) {
+            display: none;
+        }
+        
+        /* Variant selector active state */
+        .variant-btn.active {
+            border-color: #D0BB95;
+            transform: scale(1.05);
+        }
+        .variant-btn.active .check-icon {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body class="bg-background-dark text-white font-display overflow-hidden min-h-[100dvh] w-screen relative">
+    
+    <!-- AR Loading Popup -->
+    <div id="ar-loading-popup" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="bg-[#2a2620] p-6 rounded-2xl border border-primary/20 shadow-2xl flex flex-col items-center">
+            <div class="w-16 h-16 mb-4 flex items-center justify-center relative">
+                 <span class="material-symbols-outlined text-4xl text-primary animate-pulse">view_in_ar</span>
+            </div>
+            <p class="text-white font-bold mb-1">AR Başlatılıyor</p>
+            <p class="text-white/60 text-xs">Model hazırlanıyor...</p>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay bg-background-dark z-[100] flex flex-col items-center justify-center">
+        <!-- Icon Container -->
+        <div class="w-24 h-24 mb-4 flex items-center justify-center relative">
+            <span id="loading-icon" class="material-symbols-outlined text-6xl text-primary transition-all duration-500 transform scale-100">home</span>
+        </div>
+        
+        <p class="text-white text-lg font-bold mb-1">Yükleniyor...</p>
+        <p id="loading-progress" class="text-primary text-sm font-medium mb-6">0%</p>
+        
+        <!-- Progress Bar -->
+        <div class="w-64 h-1 bg-white/10 rounded-full overflow-hidden mb-8">
+            <div id="progress-bar" class="h-full bg-primary transition-all duration-300 w-0"></div>
+        </div>
+        
+        <!-- Rotating Text -->
+        <div class="h-6 overflow-hidden relative w-full max-w-md text-center">
+            <div class="animate-text-carousel">
+                <p class="text-white/60 text-sm h-6 flex items-center justify-center">Geleceğin teknolojisiyle sizi evinize ışınlıyoruz</p>
+                <p class="text-white/60 text-sm h-6 flex items-center justify-center">Hayallerinizdeki evi keşfedin</p>
+                <p class="text-white/60 text-sm h-6 flex items-center justify-center">Detaylar hazırlanıyor...</p>
+                <p class="text-white/60 text-sm h-6 flex items-center justify-center">Geleceğin teknolojisiyle sizi evinize ışınlıyoruz</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Background (placeholder - will be replaced by AR) -->
+    <div id="camera-bg" class="absolute inset-0 z-0 select-none pointer-events-none">
+        <div class="w-full h-full bg-gradient-to-b from-slate-800 to-slate-900"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90"></div>
+    </div>
+
+    <!-- Model Viewer Container -->
+    <div id="model-container" class="absolute inset-0 z-5">
+        <model-viewer
+            id="model-viewer"
+            ar
+            ar-modes="webxr scene-viewer quick-look"
+            camera-controls
+            touch-action="pan-y"
+            auto-rotate
+            shadow-intensity="1"
+            environment-image="neutral"
+            exposure="1"
+            ar-scale="auto"
+            ar-placement="floor"
+            ios-src=""
+            src=""
+            alt="3D Bina Modeli"
+        >
+            
+            <!-- Loading Progress -->
+            <div slot="progress-bar" class="absolute bottom-0 left-0 w-full h-1 bg-white/20">
+                <div id="progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </model-viewer>
+    </div>
+
+    <!-- Scanning UI (shown before model is placed) -->
+    <div id="scanning-ui" class="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+        <div class="relative w-64 h-64 flex items-center justify-center">
+            <div class="absolute inset-0 border-2 border-dashed border-white/50 rounded-full animate-[spin_12s_linear_infinite]"></div>
+            <div class="absolute inset-4 border border-primary/40 rounded-full animate-scan"></div>
+            <div class="w-1.5 h-1.5 bg-primary rounded-full shadow-[0_0_15px_rgba(208,187,149,1)] relative z-10"></div>
+            <div id="status-badge" class="absolute -top-12 bg-primary/90 text-background-dark text-xs font-bold px-3 py-1 rounded-lg backdrop-blur-sm shadow-lg">
+                Model Yükleniyor...
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="absolute top-0 left-0 w-full z-20 pt-safe px-4 flex flex-col pointer-events-none">
+        <div class="flex items-center justify-between w-full">
+            <div class="flex-1 pointer-events-auto"></div>
+            <h2 id="page-title" class="text-white text-lg font-bold leading-tight tracking-wide drop-shadow-md bg-black/20 backdrop-blur-sm px-4 py-1 rounded-full border border-white/5 mt-2 pointer-events-auto">
+                Dış Mekan Modeli
+            </h2>
+            <div class="flex-1 flex justify-end pointer-events-auto">
+                <button class="flex items-center justify-center rounded-full w-10 h-10 bg-black/30 backdrop-blur-md text-white border border-white/10 hover:bg-black/50 transition-colors mt-2">
+                    <span class="material-symbols-outlined text-[20px]">tune</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Instruction Banner (Moved Here) -->
+        <div id="instruction-banner" class="self-center mt-4 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full py-2 px-4 shadow-2xl flex items-center gap-2 pointer-events-auto transition-opacity duration-500">
+            <span class="material-symbols-outlined text-primary text-[18px]">view_in_ar</span>
+            <p class="text-[#e8e4dc] text-xs font-medium leading-normal text-center">
+                Modeli görüntülemek için AR butonuna dokunun
+            </p>
+        </div>
+
+        <!-- AR Button (Moved Here) -->
+        <button id="ar-button" class="hidden self-center mt-4 bg-primary text-background-dark font-bold py-2 px-6 rounded-full shadow-lg flex items-center gap-2 pointer-events-auto hover:bg-primary/90 transition-colors active:scale-95">
+            <span class="material-symbols-outlined">view_in_ar</span>
+            AR'da Görüntüle
+        </button>
+    </div>
+
+    <!-- Bottom UI -->
+    <div class="absolute bottom-0 w-full z-30 flex flex-col items-center pb-safe pb-8 px-4 gap-6 pt-4 pointer-events-none">
+        <!-- Action Bar -->
+        <div class="w-full flex items-end justify-between gap-4 pointer-events-auto">
+            <!-- Back Button -->
+            <div class="shrink-0 pb-2">
+                <button onclick="window.history.back()" class="flex h-12 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-[#1d1a15]/90 backdrop-blur-md border border-white/10 text-white gap-2 px-6 hover:bg-white/10 transition-all duration-300 shadow-lg active:scale-95">
+                    <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                    <span class="text-sm font-bold leading-normal tracking-wide">Geri Dön</span>
+                </button>
+            </div>
+
+            <!-- Variant Selector -->
+            <div id="variant-selector" class="flex-1 flex items-end gap-3 px-2 pb-1 overflow-x-auto overflow-y-hidden no-scrollbar">
+                <!-- Variants will be dynamically inserted here -->
+            </div>
+
+            <div class="hidden sm:block w-16"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/exterior.js"></script>
+</body>
+</html>
