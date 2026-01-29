@@ -19,10 +19,10 @@ function loadModel(variantIndex) {
     const exterior = projectData.exterior;
     const variant = exterior.variants[variantIndex];
     const basePath = projectData.assetsPath;
-    
+
     // Build model filename with variant suffix
     let modelFile, iosModelFile;
-    
+
     if (variant && variant.suffix) {
         const baseModelName = exterior.modelAndroid.replace('.glb', '');
         modelFile = `${baseModelName}${variant.suffix}.glb`;
@@ -31,23 +31,23 @@ function loadModel(variantIndex) {
         modelFile = exterior.modelAndroid;
         iosModelFile = exterior.modelIOS;
     }
-    
+
     // Set model sources
     modelViewer.src = basePath + modelFile;
     modelViewer.setAttribute('ios-src', basePath + iosModelFile);
 
     currentVariantIndex = variantIndex;
     updateVariantUI();
-    
-    // Preload AR assets to speed up transition
-    preloadARAssets(basePath + iosModelFile);
+
+    // Store USDZ path for later preloading (after GLB loads)
+    modelViewer._pendingUsdzPreload = basePath + iosModelFile;
 }
 
 // Preload AR assets (USDZ for iOS)
 function preloadARAssets(url) {
     // Check if we are on an iOS device to avoid unnecessary data usage on Android
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    
+
     if (isIOS && url) {
         fetch(url, { mode: 'cors', cache: 'force-cache' })
             .then(response => {
@@ -66,7 +66,7 @@ function buildVariantSelector() {
 
     variants.forEach((variant, index) => {
         const isActive = index === currentVariantIndex;
-        
+
         const btn = document.createElement('button');
         btn.className = `variant-btn shrink-0 group flex flex-col items-center gap-2 transition-transform active:scale-95 ${isActive ? 'active -translate-y-3 relative z-10' : ''}`;
         btn.onclick = () => {
@@ -108,11 +108,11 @@ modelViewer.addEventListener('progress', (event) => {
     const progress = event.detail.totalProgress * 100;
     const loadingIcon = document.getElementById('loading-icon');
     const loadingProgress = document.getElementById('loading-progress');
-    
+
     // Update progress bar and text
     if (progressBar) progressBar.style.width = `${progress}%`;
     if (loadingProgress) loadingProgress.textContent = `${Math.round(progress)}%`;
-    
+
     // Update icon based on progress
     if (loadingIcon) {
         if (progress < 33) {
@@ -130,7 +130,7 @@ modelViewer.addEventListener('load', () => {
     statusBadge.textContent = 'Model Hazır';
     statusBadge.classList.remove('bg-primary/90');
     statusBadge.classList.add('bg-green-500/90');
-    
+
     // Show AR button
     arButton.classList.remove('hidden');
     arButton.onclick = () => {
@@ -138,12 +138,21 @@ modelViewer.addEventListener('load', () => {
         if (arPopup) arPopup.classList.remove('hidden');
         modelViewer.activateAR();
     };
-    
+
     // Hide scanning UI after a delay
     setTimeout(() => {
         scanningUI.style.opacity = '0';
         scanningUI.style.transition = 'opacity 0.5s ease';
     }, 1500);
+
+    // Now that GLB is loaded, preload USDZ for AR (sequential loading to save memory)
+    if (modelViewer._pendingUsdzPreload) {
+        // Small delay to let Safari release some memory after GLB render
+        setTimeout(() => {
+            preloadARAssets(modelViewer._pendingUsdzPreload);
+            modelViewer._pendingUsdzPreload = null;
+        }, 500);
+    }
 });
 
 modelViewer.addEventListener('ar-status', (event) => {
@@ -177,7 +186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Load the initial variant
     loadModel(initialVariant);
-    
+
     // Build variant selector
     buildVariantSelector();
 });
