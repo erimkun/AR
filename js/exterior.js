@@ -14,9 +14,6 @@ const variantSelector = document.getElementById('variant-selector');
 const arButton = document.getElementById('ar-button');
 const progressBar = document.getElementById('progress-bar');
 
-// Detect iOS Safari
-const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
 // Load 3D model
 function loadModel(variantIndex) {
     const exterior = projectData.exterior;
@@ -35,49 +32,15 @@ function loadModel(variantIndex) {
         iosModelFile = exterior.modelIOS;
     }
 
-    const usdzUrl = basePath + iosModelFile;
-
-    // iOS Safari: Skip GLB loading to prevent memory crash
-    if (isIOSSafari) {
-        console.log('iOS Safari detected - using direct USDZ link');
-
-        // Hide model viewer, show poster
-        modelViewer.style.display = 'none';
-
-        // Store USDZ URL for AR button
-        modelViewer._usdzUrl = usdzUrl;
-
-        // Immediately show ready state
-        loadingOverlay.classList.add('hidden');
-        statusBadge.textContent = 'AR Hazır';
-        statusBadge.classList.remove('bg-primary/90');
-        statusBadge.classList.add('bg-green-500/90');
-
-        // Show AR button with direct USDZ link
-        arButton.classList.remove('hidden');
-        arButton.onclick = () => {
-            // Create a hidden anchor to trigger USDZ download/AR
-            const link = document.createElement('a');
-            link.rel = 'ar';
-            link.href = usdzUrl;
-            link.click();
-        };
-
-        // Hide scanning UI
-        scanningUI.style.opacity = '0';
-
-        return; // Don't load GLB
-    }
-
-    // Android/Desktop: Load GLB normally
+    // Set model sources
     modelViewer.src = basePath + modelFile;
-    modelViewer.setAttribute('ios-src', usdzUrl);
+    modelViewer.setAttribute('ios-src', basePath + iosModelFile);
 
     currentVariantIndex = variantIndex;
     updateVariantUI();
 
     // Store USDZ path for later preloading (after GLB loads)
-    modelViewer._pendingUsdzPreload = usdzUrl;
+    modelViewer._pendingUsdzPreload = basePath + iosModelFile;
 }
 
 // Preload AR assets (USDZ for iOS)
