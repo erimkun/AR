@@ -14,6 +14,9 @@ const variantSelector = document.getElementById('variant-selector');
 const arButton = document.getElementById('ar-button');
 const progressBar = document.getElementById('progress-bar');
 
+// Detect iOS
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
 // Load 3D model
 function loadModel(variantIndex) {
     const exterior = projectData.exterior;
@@ -32,15 +35,45 @@ function loadModel(variantIndex) {
         iosModelFile = exterior.modelIOS;
     }
 
-    // Set model sources
-    modelViewer.src = basePath + modelFile;
-    modelViewer.setAttribute('ios-src', basePath + iosModelFile);
+    // iOS: Skip GLB, use poster image to save memory
+    if (isIOS) {
+        console.log('iOS detected - using poster mode to save memory');
+
+        // Use thumbnail as poster
+        const posterUrl = basePath + (variant?.thumbnail || 'plan_01.jpg');
+        modelViewer.setAttribute('poster', posterUrl);
+
+        // Set only USDZ source, no GLB
+        modelViewer.setAttribute('ios-src', basePath + iosModelFile);
+        modelViewer.removeAttribute('src'); // Don't load GLB
+
+        // Store USDZ path for direct AR link
+        modelViewer._iosUsdzPath = basePath + iosModelFile;
+
+        // Immediately show as loaded
+        setTimeout(() => {
+            loadingOverlay.classList.add('hidden');
+            statusBadge.textContent = 'AR Hazır';
+            statusBadge.classList.remove('bg-primary/90');
+            statusBadge.classList.add('bg-green-500/90');
+            arButton.classList.remove('hidden');
+            scanningUI.style.opacity = '0';
+
+            // iOS AR button - direct USDZ link
+            arButton.onclick = () => {
+                window.location.href = basePath + iosModelFile;
+            };
+        }, 500);
+
+    } else {
+        // Android/Desktop: Load GLB normally
+        modelViewer.src = basePath + modelFile;
+        modelViewer.setAttribute('ios-src', basePath + iosModelFile);
+        modelViewer._pendingUsdzPreload = basePath + iosModelFile;
+    }
 
     currentVariantIndex = variantIndex;
     updateVariantUI();
-
-    // Store USDZ path for later preloading (after GLB loads)
-    modelViewer._pendingUsdzPreload = basePath + iosModelFile;
 }
 
 // Preload AR assets (USDZ for iOS)
