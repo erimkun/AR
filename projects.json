@@ -11,19 +11,19 @@
         {
           "name": "3+1",
           "suffix": "",
-          "thumbnail": "plan_01.jpg"
+          "thumbnail": "plan_01.webp"
         }
       ]
     },
     "interior": {
       "startRoom": "salon",
-      "floorplanImage": "plan_01.jpg",
+      "floorplanImage": "plan_01.webp",
       "rooms": [
         {
           "id": "salon",
           "name": "Salon",
-          "tex": "Salon01.jpg",
-          "thumbnail": "Salon01.jpg",
+          "tex": "Salon01.webp",
+          "thumbnail": "Salon01.webp",
           "mapCoords": {
             "x": 27,
             "y": 33
@@ -32,8 +32,8 @@
         {
           "id": "salon2",
           "name": "Salon Güney",
-          "tex": "Salon02.jpg",
-          "thumbnail": "Salon02.jpg",
+          "tex": "Salon02.webp",
+          "thumbnail": "Salon02.webp",
           "mapCoords": {
             "x": 18,
             "y": 54
@@ -42,8 +42,8 @@
         {
           "id": "mutfak",
           "name": "Mutfak",
-          "tex": "Mutfak01.jpg",
-          "thumbnail": "Mutfak01.jpg",
+          "tex": "Mutfak01.webp",
+          "thumbnail": "Mutfak01.webp",
           "mapCoords": {
             "x": 40,
             "y": 54
@@ -52,8 +52,8 @@
         {
           "id": "odalar",
           "name": "Odalar",
-          "tex": "Odalar.jpg",
-          "thumbnail": "Odalar.jpg",
+          "tex": "Odalar.webp",
+          "thumbnail": "Odalar.webp",
           "mapCoords": {
             "x": 60,
             "y": 54
@@ -62,8 +62,8 @@
         {
           "id": "yatak",
           "name": "Yatak Odası",
-          "tex": "YatakOdası.jpg",
-          "thumbnail": "YatakOdası.jpg",
+          "tex": "YatakOdası.webp",
+          "thumbnail": "YatakOdası.webp",
           "mapCoords": {
             "x": 80,
             "y": 54
