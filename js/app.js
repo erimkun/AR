@@ -265,6 +265,212 @@ function throttle(func, limit) {
     };
 }
 
+const AMBIENT_AUDIO_STORAGE_KEY = 'ambientSoundEnabled';
+const AMBIENT_AUDIO_SRC = 'assets/Sound.mp3';
+const AMBIENT_AUDIO_VOLUME = 0.12;
+
+let ambientAudioInteractionCleanup = null;
+
+function getAmbientAudioPreference() {
+    try {
+        return localStorage.getItem(AMBIENT_AUDIO_STORAGE_KEY) !== 'false';
+    } catch (error) {
+        return true;
+    }
+}
+
+function setAmbientAudioPreference(enabled) {
+    try {
+        localStorage.setItem(AMBIENT_AUDIO_STORAGE_KEY, String(enabled));
+    } catch (error) {
+        console.warn('Ambient ses tercihi kaydedilemedi:', error);
+    }
+}
+
+function ensureAmbientAudioStyles() {
+    if (document.getElementById('ambient-audio-styles')) {
+        return;
+    }
+
+    const style = document.createElement('style');
+    style.id = 'ambient-audio-styles';
+    style.textContent = `
+        #ambient-audio-toggle {
+            position: fixed;
+            left: 16px;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 9999px;
+            background: rgba(29, 26, 21, 0.82);
+            color: #f5f1e8;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+            z-index: 80;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        #ambient-audio-toggle:hover {
+            transform: translateY(-1px);
+            background: rgba(42, 37, 32, 0.92);
+        }
+
+        #ambient-audio-toggle:active {
+            transform: scale(0.96);
+        }
+
+        #ambient-audio-toggle.is-muted {
+            color: rgba(245, 241, 232, 0.68);
+            background: rgba(20, 18, 15, 0.76);
+        }
+
+        #ambient-audio-toggle .material-symbols-outlined {
+            font-size: 22px;
+        }
+
+        @media (max-width: 640px) {
+            #ambient-audio-toggle {
+                left: 12px;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+                width: 42px;
+                height: 42px;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+}
+
+function syncAmbientAudioButton(button, enabled) {
+    if (!button) {
+        return;
+    }
+
+    button.classList.toggle('is-muted', !enabled);
+    button.setAttribute('aria-pressed', String(enabled));
+    button.setAttribute('aria-label', enabled ? 'Ambiyans sesini kapat' : 'Ambiyans sesini ac');
+    button.setAttribute('title', enabled ? 'Ambiyans sesini kapat' : 'Ambiyans sesini ac');
+    button.innerHTML = `<span class="material-symbols-outlined">${enabled ? 'volume_up' : 'volume_off'}</span>`;
+}
+
+async function tryPlayAmbientAudio(audio) {
+    if (!audio || !getAmbientAudioPreference()) {
+        return false;
+    }
+
+    audio.volume = AMBIENT_AUDIO_VOLUME;
+    audio.muted = false;
+
+    try {
+        await audio.play();
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+function registerAmbientAudioResume(audio) {
+    if (ambientAudioInteractionCleanup) {
+        return;
+    }
+
+    const eventOptions = { capture: true, passive: true };
+
+    const cleanup = () => {
+        document.removeEventListener('pointerdown', handleResume, eventOptions);
+        document.removeEventListener('touchstart', handleResume, eventOptions);
+        document.removeEventListener('keydown', handleResume, eventOptions);
+        ambientAudioInteractionCleanup = null;
+    };
+
+    const handleResume = async () => {
+        if (!getAmbientAudioPreference()) {
+            cleanup();
+            return;
+        }
+
+        const started = await tryPlayAmbientAudio(audio);
+        if (started) {
+            cleanup();
+        }
+    };
+
+    ambientAudioInteractionCleanup = cleanup;
+
+    document.addEventListener('pointerdown', handleResume, eventOptions);
+    document.addEventListener('touchstart', handleResume, eventOptions);
+    document.addEventListener('keydown', handleResume, eventOptions);
+}
+
+function initAmbientAudio() {
+    if (!document.body || document.getElementById('ambient-audio-player')) {
+        return;
+    }
+
+    ensureAmbientAudioStyles();
+
+    const audio = document.createElement('audio');
+    audio.id = 'ambient-audio-player';
+    audio.src = AMBIENT_AUDIO_SRC;
+    audio.loop = true;
+    audio.preload = 'auto';
+    audio.playsInline = true;
+    audio.setAttribute('playsinline', '');
+    audio.setAttribute('aria-hidden', 'true');
+    audio.hidden = true;
+
+    const toggleButton = document.createElement('button');
+    toggleButton.id = 'ambient-audio-toggle';
+    toggleButton.type = 'button';
+
+    let isEnabled = getAmbientAudioPreference();
+    syncAmbientAudioButton(toggleButton, isEnabled);
+
+    toggleButton.addEventListener('click', async () => {
+        isEnabled = !isEnabled;
+        setAmbientAudioPreference(isEnabled);
+        syncAmbientAudioButton(toggleButton, isEnabled);
+
+        if (!isEnabled) {
+            audio.pause();
+            return;
+        }
+
+        const started = await tryPlayAmbientAudio(audio);
+        if (!started) {
+            registerAmbientAudioResume(audio);
+        }
+    });
+
+    document.body.appendChild(audio);
+    document.body.appendChild(toggleButton);
+
+    if (isEnabled) {
+        requestAnimationFrame(async () => {
+            const started = await tryPlayAmbientAudio(audio);
+            if (!started) {
+                registerAmbientAudioResume(audio);
+            }
+        });
+    }
+}
+
+window.initAmbientAudio = initAmbientAudio;
+
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAmbientAudio, { once: true });
+    } else {
+        initAmbientAudio();
+    }
+}
+
 // Export for ES modules if needed
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
@@ -281,6 +487,7 @@ if (typeof module !== 'undefined' && module.exports) {
         preloadImage,
         formatFileSize,
         debounce,
-        throttle
+        throttle,
+        initAmbientAudio
     };
 }
