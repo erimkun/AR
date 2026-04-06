@@ -4,249 +4,657 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
     <title>WebXR Gayrimenkul Platformu</title>
-    
-    <!-- Tailwind CSS -->
+
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    
-    <!-- Fonts -->
+
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    
-    <!-- Tailwind Config -->
+
     <script>
         tailwind.config = {
-            darkMode: "class",
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        primary: "#D0BB95",
-                        "background-light": "#f7f7f6",
-                        "background-dark": "#1d1a15",
-                        "surface-dark": "#2a2520"
+                        primary: '#D0BB95',
+                        'background-dark': '#1d1a15',
+                        'surface-dark': '#2a2520'
                     },
                     fontFamily: {
-                        display: ["Space Grotesk", "sans-serif"]
+                        display: ['Space Grotesk', 'sans-serif']
                     }
                 }
             }
         };
     </script>
-    
+
     <style>
+        html,
         body {
             min-height: 100dvh;
         }
+
         .material-symbols-outlined {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-variation-settings: 'FILL' 1, 'wght' 450, 'GRAD' 0, 'opsz' 24;
         }
-        .project-card {
-            transition: all 0.3s ease;
+
+        .projects-scroll::-webkit-scrollbar {
+            width: 6px;
         }
-        .project-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+
+        .projects-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .projects-scroll::-webkit-scrollbar-thumb {
+            background: #3d3428;
+            border-radius: 3px;
+        }
+
+        .projects-scroll::-webkit-scrollbar-thumb:hover {
+            background: #d0bb95;
+        }
+
+        .projects-scroll {
+            scrollbar-color: #3d3428 transparent;
+            scrollbar-width: thin;
         }
     </style>
 </head>
 
-<body class="bg-background-dark font-display antialiased min-h-screen">
-    
-    <!-- Header -->
-    <header class="sticky top-0 z-50 bg-background-dark/80 backdrop-blur-md border-b border-white/10">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary">view_in_ar</span>
-                </div>
-                <div>
-                    <h1 class="text-white font-bold text-lg">WebXR Platform</h1>
-                    <p class="text-white/40 text-xs">Gayrimenkul Görüntüleme</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-xs text-white/40 bg-white/5 px-3 py-1 rounded-full">v1.0.0</span>
-            </div>
-        </div>
-    </header>
+<body class="bg-background-dark font-display antialiased min-h-screen overflow-x-hidden text-white">
+    <div id="webgl-bg" class="fixed inset-0 z-0 pointer-events-none" style="background: #1d1a15;"></div>
 
-    <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-4 py-8">
-        
-        <!-- Hero Section -->
-        <section class="text-center mb-12">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                </span>
-                <span class="text-xs font-medium text-primary uppercase tracking-wide">Sistem Aktif</span>
-            </div>
-            <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
-                Projeleri <span class="text-primary">Keşfedin</span>
-            </h2>
-            <p class="text-white/60 text-lg max-w-xl mx-auto">
-                Artırılmış gerçeklik ile gayrimenkul projelerini inceleyin. Bir proje seçerek deneyime başlayın.
-            </p>
-        </section>
+    <main class="relative z-10 p-4 md:p-8 pt-12 md:pt-16">
+        <div class="max-w-5xl w-full mx-auto">
+            <section class="mb-8 text-center">
+                <h1 class="text-4xl md:text-5xl font-semibold tracking-tight mb-4">Sanal Tur Deneyimi</h1>
+                <p class="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                    WebXR ile dış mekan AR ve iç mekan 360 derece turu tek platformda yönetin ve anında deneyimleyin.
+                </p>
+            </section>
 
-        <!-- Projects Grid -->
-        <section>
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-white font-semibold text-lg">Mevcut Projeler</h3>
-                <span id="project-count" class="text-white/40 text-sm">Yükleniyor...</span>
-            </div>
-            
-            <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Projects will be loaded here -->
-                <div class="col-span-full flex items-center justify-center py-12">
-                    <div class="text-center">
-                        <div class="w-12 h-12 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                        <p class="text-white/40">Projeler yükleniyor...</p>
+            <section class="flex items-center justify-center gap-3 mb-8">
+                <div id="search-wrap" class="relative">
+                    <div
+                        id="search-shell"
+                        class="flex items-center bg-[#1d1a15]/80 backdrop-blur-xl border border-[#3d3428] rounded-xl overflow-hidden transition-all duration-300 ease-out w-12 cursor-pointer hover:border-primary/30 hover:bg-[#1d1a15]"
+                    >
+                        <button id="search-icon" type="button" class="text-gray-500 p-3 hover:text-primary transition-colors" aria-label="Aramayı aç">
+                            <span class="material-symbols-outlined text-[20px]">search</span>
+                        </button>
+                        <input
+                            id="search-input"
+                            type="text"
+                            placeholder="Proje ara..."
+                            class="bg-transparent text-white placeholder-gray-500 focus:outline-none transition-all duration-300 w-0 p-0 opacity-0"
+                        />
+                        <button id="search-close" type="button" class="pr-3 text-gray-500 hover:text-white transition-colors hidden" aria-label="Aramayı kapat">
+                            <span class="material-symbols-outlined text-[18px]">close</span>
+                        </button>
                     </div>
+
+                    <div
+                        id="search-results"
+                        class="hidden absolute top-full left-0 right-0 mt-2 bg-[#1d1a15]/95 backdrop-blur-xl border border-[#3d3428] rounded-xl overflow-hidden shadow-2xl z-50"
+                    ></div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Quick Links -->
-        <section class="mt-16 p-6 bg-surface-dark rounded-2xl border border-white/10">
-            <h3 class="text-white font-semibold mb-4">Hızlı Erişim</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <a href="welcome?id=1101_8" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                    <span class="material-symbols-outlined text-primary">home</span>
-                    <span class="text-white/80 text-sm">Hoşgeldiniz</span>
-                </a>
-                <a href="select?id=1101_8" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                    <span class="material-symbols-outlined text-primary">apps</span>
-                    <span class="text-white/80 text-sm">Mod Seçimi</span>
-                </a>
-                <a href="exterior?id=1101_8" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                    <span class="material-symbols-outlined text-primary">landscape</span>
-                    <span class="text-white/80 text-sm">Dış Mekan</span>
-                </a>
-                <a href="interior?id=1101_8" class="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                    <span class="material-symbols-outlined text-primary">360</span>
-                    <span class="text-white/80 text-sm">İç Mekan</span>
-                </a>
-            </div>
-        </section>
+            <section class="mb-12">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-lg font-semibold">Projeler</h2>
+                    <span id="project-count" class="text-white/50 text-sm">Yükleniyor...</span>
+                </div>
+                <div id="projects-grid" class="projects-scroll max-h-[420px] overflow-y-auto rounded-xl pr-1"></div>
+            </section>
 
-        <!-- Info Cards -->
-        <section class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="p-4 bg-surface-dark rounded-xl border border-white/10">
-                <span class="material-symbols-outlined text-blue-400 mb-2">phone_iphone</span>
-                <h4 class="text-white font-medium mb-1">Mobil Uyumlu</h4>
-                <p class="text-white/40 text-sm">iOS ve Android cihazlarda AR deneyimi</p>
-            </div>
-            <div class="p-4 bg-surface-dark rounded-xl border border-white/10">
-                <span class="material-symbols-outlined text-green-400 mb-2">download</span>
-                <h4 class="text-white font-medium mb-1">Uygulama Gereksiz</h4>
-                <p class="text-white/40 text-sm">Doğrudan tarayıcıdan çalışır</p>
-            </div>
-            <div class="p-4 bg-surface-dark rounded-xl border border-white/10">
-                <span class="material-symbols-outlined text-purple-400 mb-2">view_in_ar</span>
-                <h4 class="text-white font-medium mb-1">WebXR Destekli</h4>
-                <p class="text-white/40 text-sm">Gelişmiş AR özellikleri</p>
-            </div>
-        </section>
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <article class="group relative overflow-hidden rounded-2xl border border-[#3d3428] bg-[#1d1a15]/65 backdrop-blur-xl p-6 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+                    style="box-shadow: rgba(50, 50, 93, 0.15) 0 30px 60px -12px inset, rgba(0, 0, 0, 0.2) 0 18px 36px -18px inset;">
+                    <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                        <span class="material-symbols-outlined">view_in_ar</span>
+                    </div>
+                    <h3 class="mb-2 text-lg font-semibold tracking-tight">Dış Mekan AR Görüntüleme</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Proje modelini cihaz kamerası üstünde AR modunda yerleştirin, ölçekleyin ve farklı açılardan inceleyin.</p>
+                </article>
 
+                <article class="group relative overflow-hidden rounded-2xl border border-[#3d3428] bg-[#1d1a15]/65 backdrop-blur-xl p-6 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+                    style="box-shadow: rgba(50, 50, 93, 0.15) 0 30px 60px -12px inset, rgba(0, 0, 0, 0.2) 0 18px 36px -18px inset;">
+                    <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                        <span class="material-symbols-outlined">360</span>
+                    </div>
+                    <h3 class="mb-2 text-lg font-semibold tracking-tight">İç Mekan 360 Tur</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Odalar arasında geçiş yapın, pusula ve mini harita ile yönlenerek mekanı detaylı şekilde gezin.</p>
+                </article>
+
+                <article class="group relative overflow-hidden rounded-2xl border border-[#3d3428] bg-[#1d1a15]/65 backdrop-blur-xl p-6 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+                    style="box-shadow: rgba(50, 50, 93, 0.15) 0 30px 60px -12px inset, rgba(0, 0, 0, 0.2) 0 18px 36px -18px inset;">
+                    <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                        <span class="material-symbols-outlined">layers</span>
+                    </div>
+                    <h3 class="mb-2 text-lg font-semibold tracking-tight">Varyant ve Plan İnceleme</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Her proje için oda sayısı, varyant seçenekleri ve plan görselleri tek noktadan görüntülenir.</p>
+                </article>
+
+                <article class="group relative overflow-hidden rounded-2xl border border-[#3d3428] bg-[#1d1a15]/65 backdrop-blur-xl p-6 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+                    style="box-shadow: rgba(50, 50, 93, 0.15) 0 30px 60px -12px inset, rgba(0, 0, 0, 0.2) 0 18px 36px -18px inset;">
+                    <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                        <span class="material-symbols-outlined">devices</span>
+                    </div>
+                    <h3 class="mb-2 text-lg font-semibold tracking-tight">Her Cihazda Hazır</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed">Kurulum gerektirmeden mobil ve masaüstü cihazlarda hızlı açılır, bağlantı paylaşımı ile kolayca sunulur.</p>
+                </article>
+            </section>
+        </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-white/10 mt-16">
-        <div class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
-            <p class="text-white/30 text-sm">© 2025 WebXR Platform</p>
-            <div class="flex items-center gap-4">
-                <a href="README.md" class="text-white/40 hover:text-white text-sm transition-colors">Dokümantasyon</a>
-            </div>
-        </div>
-    </footer>
-
     <script src="js/app.js"></script>
-    <script>
-        // Load and display projects
+    <script type="module">
+        import * as THREE from './js/vendor/three.module.js';
+
+        let webglBackgroundCleanup = null;
+
+        function initWebGLBackground() {
+            if (typeof THREE === 'undefined') {
+                return;
+            }
+
+            const container = document.getElementById('webgl-bg');
+            if (!container) {
+                return;
+            }
+
+            if (webglBackgroundCleanup) {
+                webglBackgroundCleanup();
+                webglBackgroundCleanup = null;
+            }
+
+            const width = container.clientWidth || window.innerWidth;
+            const height = container.clientHeight || window.innerHeight;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            const renderer = new THREE.WebGLRenderer({
+                antialias: false,
+                alpha: true,
+                powerPreference: 'high-performance',
+                stencil: false,
+                depth: false
+            });
+
+            if ('outputColorSpace' in renderer && THREE.SRGBColorSpace) {
+                renderer.outputColorSpace = THREE.SRGBColorSpace;
+            }
+            if ('toneMapping' in renderer && THREE.NoToneMapping !== undefined) {
+                renderer.toneMapping = THREE.NoToneMapping;
+            }
+
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.setClearColor(0x000000, 0);
+            container.appendChild(renderer.domElement);
+
+            const vertexShader = `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = vec4(position, 1.0);
+                }
+            `;
+
+            const fragmentShader = `
+                uniform float uTime;
+                uniform vec2 uResolution;
+                uniform vec2 uMouse;
+                uniform vec3 uTopColor;
+                uniform vec3 uBottomColor;
+                uniform float uIntensity;
+                uniform float uGlowAmount;
+                uniform float uPillarWidth;
+                uniform float uPillarHeight;
+
+                varying vec2 vUv;
+
+                mat2 rot(float angle) {
+                    float s = sin(angle);
+                    float c = cos(angle);
+                    return mat2(c, -s, s, c);
+                }
+
+                void main() {
+                    vec2 fragCoord = vUv * uResolution;
+                    vec2 uv = (fragCoord * 2.0 - uResolution) / uResolution.y;
+
+                    vec3 origin = vec3(0.0, 0.0, -10.0);
+                    vec3 direction = normalize(vec3(uv, 1.0));
+
+                    mat2 rotX = rot(uMouse.x * 0.5);
+
+                    vec3 color = vec3(0.0);
+                    float depth = 0.1;
+
+                    for (float i = 0.0; i < 64.0; i++) {
+                        vec3 pos = origin + direction * depth;
+                        pos.xz *= rotX;
+
+                        vec3 deformed = pos;
+                        deformed.y *= uPillarHeight;
+
+                        float wave = cos(deformed.y * 2.0 + uTime) * 0.2;
+                        deformed.x += wave;
+
+                        float d = length(cos(deformed.xz)) - 0.2;
+
+                        float bound = length(pos.xz) - uPillarWidth;
+                        d = max(d, -bound);
+
+                        float glow = 0.02 / (abs(d) + 0.01);
+
+                        float yGradient = smoothstep(2.0, -2.0, pos.y);
+                        vec3 col = mix(uBottomColor, uTopColor, yGradient);
+
+                        color += col * glow * uGlowAmount;
+
+                        depth += max(abs(d) * 0.5, 0.02);
+                        if (depth > 20.0) break;
+                    }
+
+                    float vig = 1.0 - length(uv) * 0.3;
+                    color *= vig;
+
+                    gl_FragColor = vec4(color * uIntensity, 1.0);
+                }
+            `;
+
+            const material = new THREE.ShaderMaterial({
+                vertexShader,
+                fragmentShader,
+                uniforms: {
+                    uTime: { value: 0 },
+                    uResolution: { value: new THREE.Vector2(width, height) },
+                    uMouse: { value: new THREE.Vector2(0, 0) },
+                    uTopColor: { value: new THREE.Color('#D0BB95') },
+                    uBottomColor: { value: new THREE.Color('#3d3428') },
+                    uIntensity: { value: 1.0 },
+                    uGlowAmount: { value: 0.05 },
+                    uPillarWidth: { value: 3.5 },
+                    uPillarHeight: { value: 0.6 }
+                },
+                transparent: true,
+                depthWrite: false,
+                depthTest: false
+            });
+
+            const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+            scene.add(mesh);
+
+            let rafId = 0;
+            let time = 0;
+
+            const animate = () => {
+                rafId = requestAnimationFrame(animate);
+                time += 0.005;
+                material.uniforms.uTime.value = time;
+                renderer.render(scene, camera);
+            };
+
+            const handleResize = () => {
+                const w = container.clientWidth || window.innerWidth;
+                const h = container.clientHeight || window.innerHeight;
+                renderer.setSize(w, h);
+                material.uniforms.uResolution.value.set(w, h);
+            };
+
+            const handleMouseMove = (event) => {
+                const x = (event.clientX / window.innerWidth) * 2 - 1;
+                const y = -(event.clientY / window.innerHeight) * 2 + 1;
+                material.uniforms.uMouse.value.set(x, y);
+            };
+
+            window.addEventListener('resize', handleResize);
+            window.addEventListener('mousemove', handleMouseMove);
+            animate();
+
+            webglBackgroundCleanup = () => {
+                window.removeEventListener('resize', handleResize);
+                window.removeEventListener('mousemove', handleMouseMove);
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                }
+                scene.remove(mesh);
+                mesh.geometry.dispose();
+                material.dispose();
+                renderer.dispose();
+                if (renderer.domElement.parentNode === container) {
+                    container.removeChild(renderer.domElement);
+                }
+            };
+        }
+
+        const FALLBACK_PROJECTS = [
+            {
+                projectId: 'demo',
+                projectName: 'Demo Proje',
+                roomCount: 0,
+                variantCount: 0,
+                thumbnail: null,
+                assetsPath: ''
+            }
+        ];
+
+        const FALLBACK_GRADIENTS = [
+            'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+            'linear-gradient(135deg, #2d1b69 0%, #11998e 100%)',
+            'linear-gradient(135deg, #3d1c02 0%, #8b5e3c 100%)',
+            'linear-gradient(135deg, #1b2838 0%, #2a5298 100%)',
+            'linear-gradient(135deg, #1a0c2e 0%, #3a1c71 50%, #6b3fa0 100%)',
+            'linear-gradient(135deg, #134e5e 0%, #71b280 100%)',
+            'linear-gradient(135deg, #2c1810 0%, #c4956a 100%)',
+            'linear-gradient(135deg, #0d1b2a 0%, #1b3a4b 50%, #3a7ca5 100%)'
+        ];
+
+        const state = {
+            projects: FALLBACK_PROJECTS,
+            searchQuery: '',
+            showResults: false,
+            isSearchOpen: false,
+            brokenThumbnails: {}
+        };
+
+        const refs = {
+            searchWrap: document.getElementById('search-wrap'),
+            searchShell: document.getElementById('search-shell'),
+            searchInput: document.getElementById('search-input'),
+            searchIcon: document.getElementById('search-icon'),
+            searchClose: document.getElementById('search-close'),
+            searchResults: document.getElementById('search-results'),
+            projectsGrid: document.getElementById('projects-grid'),
+            projectCount: document.getElementById('project-count')
+        };
+
+        function normalizeProjects(rawProjects) {
+            if (!rawProjects || typeof rawProjects !== 'object') {
+                return FALLBACK_PROJECTS;
+            }
+
+            const normalized = Object.entries(rawProjects).map(([projectId, project]) => {
+                const roomCount = Array.isArray(project?.interior?.rooms) ? project.interior.rooms.length : 0;
+                const variantCount = Array.isArray(project?.exterior?.variants) ? project.exterior.variants.length : 0;
+                const thumbnail =
+                    project?.interior?.rooms?.[0]?.thumbnail ||
+                    project?.exterior?.variants?.[0]?.thumbnail ||
+                    null;
+
+                return {
+                    projectId,
+                    projectName: project?.projectName || projectId,
+                    roomCount,
+                    variantCount,
+                    thumbnail,
+                    assetsPath: project?.assetsPath || ''
+                };
+            });
+
+            return normalized.length > 0 ? normalized : FALLBACK_PROJECTS;
+        }
+
+        function resolveThumbnail(project) {
+            if (state.brokenThumbnails[project.projectId]) {
+                return null;
+            }
+
+            if (!project.thumbnail) {
+                return null;
+            }
+
+            if (/^(https?:)?\/\//.test(project.thumbnail) || project.thumbnail.startsWith('/')) {
+                return project.thumbnail;
+            }
+
+            return `${project.assetsPath}${project.thumbnail}`;
+        }
+
+        function goToProject(projectId) {
+            window.location.href = `welcome?id=${encodeURIComponent(projectId)}`;
+        }
+
+        function getFilteredProjects() {
+            const query = state.searchQuery.trim().toLowerCase();
+            if (!query) {
+                return state.projects;
+            }
+
+            return state.projects.filter((project) =>
+                `${project.projectName} ${project.projectId}`.toLowerCase().includes(query)
+            );
+        }
+
+        function renderSearchResults() {
+            const query = state.searchQuery.trim();
+            const filtered = getFilteredProjects();
+            const shouldShow = state.showResults && state.isSearchOpen && query.length > 0;
+
+            refs.searchResults.classList.toggle('hidden', !shouldShow);
+            if (!shouldShow) {
+                return;
+            }
+
+            if (filtered.length === 0) {
+                refs.searchResults.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm">Sonuç bulunamadı</div>';
+                return;
+            }
+
+            refs.searchResults.innerHTML = filtered
+                .map(
+                    (project) => `
+                        <button
+                            type="button"
+                            data-project-id="${project.projectId}"
+                            class="w-full px-4 py-3 text-left text-white hover:bg-primary/10 transition-colors flex items-center gap-3"
+                        >
+                            <span class="material-symbols-outlined text-primary text-[18px]">folder</span>
+                            <span>
+                                <span class="block">${project.projectName}</span>
+                                <span class="block text-[11px] text-gray-500">${project.projectId}</span>
+                            </span>
+                        </button>
+                    `
+                )
+                .join('');
+        }
+
+        function renderProjects() {
+            const visibleProjects = getFilteredProjects();
+            refs.projectCount.textContent = `${visibleProjects.length} proje`;
+
+            if (visibleProjects.length === 0) {
+                refs.projectsGrid.innerHTML = `
+                    <div class="rounded-2xl border border-dashed border-[#3d3428] bg-[#1d1a15]/55 px-6 py-10 text-center text-gray-400">
+                        Görüntülenecek proje bulunamadı.
+                    </div>
+                `;
+                return;
+            }
+
+            const rows = Array.from({ length: Math.ceil(visibleProjects.length / 3) }, (_, rowIndex) =>
+                visibleProjects.slice(rowIndex * 3, rowIndex * 3 + 3)
+            );
+
+            refs.projectsGrid.innerHTML = rows
+                .map(
+                    (row, rowIndex) => `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 snap-start ${rowIndex > 0 ? 'mt-4' : ''}">
+                            ${row
+                                .map((project, colIndex) => {
+                                    const bg = FALLBACK_GRADIENTS[(rowIndex * 3 + colIndex) % FALLBACK_GRADIENTS.length];
+                                    const thumbnailSrc = resolveThumbnail(project);
+
+                                    return `
+                                        <article
+                                            data-project-id="${project.projectId}"
+                                            class="cursor-pointer overflow-hidden rounded-2xl border border-[#3d3428] bg-[#1d1a15]/75 backdrop-blur-xl transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] active:scale-[0.98]"
+                                        >
+                                            <div class="relative h-44 overflow-hidden" style="background: ${bg};">
+                                                ${thumbnailSrc
+                                                    ? `<img src="${thumbnailSrc}" data-pid="${project.projectId}" alt="${project.projectName}" class="h-full w-full object-cover" />`
+                                                    : ''}
+                                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                                <div class="absolute bottom-0 left-0 right-0 p-4">
+                                                    <h3 class="text-base font-semibold text-white truncate">${project.projectName}</h3>
+                                                    <p class="text-[11px] text-white/50 mt-0.5">${project.projectId}</p>
+                                                </div>
+                                            </div>
+                                            <div class="px-4 py-3 flex items-center justify-between text-xs text-gray-400 border-t border-[#3d3428]/60">
+                                                <span class="inline-flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[14px] text-primary">door_front</span>
+                                                    ${project.roomCount} Oda
+                                                </span>
+                                                <span class="inline-flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[14px] text-primary">layers</span>
+                                                    ${project.variantCount} Varyant
+                                                </span>
+                                            </div>
+                                        </article>
+                                    `;
+                                })
+                                .join('')}
+                        </div>
+                    `
+                )
+                .join('');
+        }
+
+        function setSearchOpen(open) {
+            state.isSearchOpen = open;
+
+            refs.searchShell.classList.toggle('w-12', !open);
+            refs.searchShell.classList.toggle('w-80', open);
+            refs.searchShell.classList.toggle('cursor-pointer', !open);
+            refs.searchShell.classList.toggle('border-primary/50', open);
+            refs.searchShell.classList.toggle('hover:border-primary/30', !open);
+
+            refs.searchInput.classList.toggle('w-0', !open);
+            refs.searchInput.classList.toggle('p-0', !open);
+            refs.searchInput.classList.toggle('opacity-0', !open);
+            refs.searchInput.classList.toggle('w-full', open);
+            refs.searchInput.classList.toggle('px-3', open);
+            refs.searchInput.classList.toggle('py-3', open);
+            refs.searchInput.classList.toggle('opacity-100', open);
+
+            refs.searchClose.classList.toggle('hidden', !open);
+
+            if (open) {
+                refs.searchInput.focus();
+            }
+        }
+
         async function loadProjects() {
             try {
                 const response = await fetch('projects.json');
-                const projects = await response.json();
-                
-                const grid = document.getElementById('projects-grid');
-                const countEl = document.getElementById('project-count');
-                
-                const projectIds = Object.keys(projects);
-                countEl.textContent = `${projectIds.length} proje`;
-                
-                grid.innerHTML = projectIds.map(id => {
-                    const project = projects[id];
-                    const roomCount = project.interior?.rooms?.length || 0;
-                    const variantCount = project.exterior?.variants?.length || 0;
-                    
-                    return `
-                        <div class="project-card bg-surface-dark rounded-2xl border border-white/10 overflow-hidden">
-                            <!-- Thumbnail -->
-                            <div class="relative h-48 bg-gradient-to-br from-primary/20 to-purple-500/20">
-                                <img src="${project.assetsPath}${project.interior?.rooms?.[0]?.thumbnail || 'plan_01.jpg'}" 
-                                     alt="${project.projectName}"
-                                     class="w-full h-full object-cover opacity-60"
-                                     onerror="this.style.display='none'"
-                                />
-                                <div class="absolute inset-0 bg-gradient-to-t from-surface-dark via-transparent to-transparent"></div>
-                                <div class="absolute top-3 right-3 bg-primary text-background-dark text-xs font-bold px-2 py-1 rounded-lg">
-                                    ${id}
-                                </div>
-                            </div>
-                            
-                            <!-- Content -->
-                            <div class="p-5">
-                                <h4 class="text-white font-bold text-lg mb-2">${project.projectName}</h4>
-                                
-                                <div class="flex items-center gap-4 text-white/40 text-sm mb-4">
-                                    <span class="flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-[16px]">door_front</span>
-                                        ${roomCount} Oda
-                                    </span>
-                                    <span class="flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-[16px]">layers</span>
-                                        ${variantCount} Varyant
-                                    </span>
-                                </div>
-                                
-                                <!-- Action Buttons -->
-                                <div class="flex gap-2">
-                                    <a href="welcome?id=${id}" 
-                                       onclick="console.log('Navigating to project:', '${id}')"
-                                       class="flex-1 bg-primary text-background-dark font-bold py-3 px-4 rounded-xl text-center hover:bg-white transition-colors text-sm">
-                                        Başlat
-                                    </a>
-                                    <a href="exterior?id=${id}" 
-                                       class="flex items-center justify-center w-12 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
-                                       title="Dış Mekan">
-                                        <span class="material-symbols-outlined text-[20px]">landscape</span>
-                                    </a>
-                                    <a href="interior?id=${id}" 
-                                       class="flex items-center justify-center w-12 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
-                                       title="İç Mekan">
-                                        <span class="material-symbols-outlined text-[20px]">360</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
+                const projects = response.ok ? await response.json() : {};
+                state.projects = normalizeProjects(projects);
             } catch (error) {
                 console.error('Projeler yüklenemedi:', error);
-                document.getElementById('projects-grid').innerHTML = `
-                    <div class="col-span-full text-center py-12">
-                        <span class="material-symbols-outlined text-red-400 text-4xl mb-4">error</span>
-                        <p class="text-white/60">Projeler yüklenirken hata oluştu</p>
-                        <p class="text-white/40 text-sm mt-2">${error.message}</p>
-                    </div>
-                `;
+                state.projects = FALLBACK_PROJECTS;
             }
+
+            renderProjects();
+            renderSearchResults();
         }
-        
-        // Initialize
+
+        refs.searchShell.addEventListener('click', () => {
+            if (!state.isSearchOpen) {
+                setSearchOpen(true);
+            }
+        });
+
+        refs.searchIcon.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (!state.isSearchOpen) {
+                setSearchOpen(true);
+            } else {
+                refs.searchInput.focus();
+            }
+        });
+
+        refs.searchClose.addEventListener('click', (event) => {
+            event.stopPropagation();
+            state.searchQuery = '';
+            state.showResults = false;
+            refs.searchInput.value = '';
+            setSearchOpen(false);
+            renderProjects();
+            renderSearchResults();
+        });
+
+        refs.searchInput.addEventListener('input', (event) => {
+            state.searchQuery = event.target.value;
+            state.showResults = true;
+            renderProjects();
+            renderSearchResults();
+        });
+
+        refs.searchInput.addEventListener('focus', () => {
+            state.showResults = true;
+            renderSearchResults();
+        });
+
+        document.addEventListener('mousedown', (event) => {
+            if (!refs.searchWrap.contains(event.target)) {
+                state.showResults = false;
+                if (!state.searchQuery.trim()) {
+                    setSearchOpen(false);
+                }
+                renderSearchResults();
+            }
+        });
+
+        refs.searchResults.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-project-id]');
+            if (!button) {
+                return;
+            }
+            goToProject(button.dataset.projectId);
+        });
+
+        refs.projectsGrid.addEventListener('click', (event) => {
+            const card = event.target.closest('[data-project-id]');
+            if (!card) {
+                return;
+            }
+            goToProject(card.dataset.projectId);
+        });
+
+        refs.projectsGrid.addEventListener(
+            'error',
+            (event) => {
+                const image = event.target;
+                if (!(image instanceof HTMLImageElement)) {
+                    return;
+                }
+
+                const projectId = image.dataset.pid;
+                if (!projectId || state.brokenThumbnails[projectId]) {
+                    return;
+                }
+
+                state.brokenThumbnails[projectId] = true;
+                renderProjects();
+            },
+            true
+        );
+
+        initWebGLBackground();
+        setSearchOpen(false);
         loadProjects();
+
+        window.addEventListener('beforeunload', () => {
+            if (webglBackgroundCleanup) {
+                webglBackgroundCleanup();
+                webglBackgroundCleanup = null;
+            }
+        });
     </script>
 </body>
 </html>

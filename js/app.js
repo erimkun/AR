@@ -267,7 +267,8 @@ function throttle(func, limit) {
 
 const AMBIENT_AUDIO_STORAGE_KEY = 'ambientSoundEnabled';
 const AMBIENT_AUDIO_SRC = 'assets/Sound.mp3';
-const AMBIENT_AUDIO_VOLUME = 0.12;
+const AMBIENT_AUDIO_VOLUME = 0.06;
+const AMBIENT_AUDIO_TIME_STORAGE_KEY = 'ambientSoundTime';
 
 let ambientAudioInteractionCleanup = null;
 
@@ -285,6 +286,62 @@ function setAmbientAudioPreference(enabled) {
     } catch (error) {
         console.warn('Ambient ses tercihi kaydedilemedi:', error);
     }
+}
+
+function getAmbientAudioTime() {
+    try {
+        const raw = localStorage.getItem(AMBIENT_AUDIO_TIME_STORAGE_KEY);
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed) || parsed < 0) {
+            return 0;
+        }
+        return parsed;
+    } catch (error) {
+        return 0;
+    }
+}
+
+function saveAmbientAudioTime(timeInSeconds) {
+    if (!Number.isFinite(timeInSeconds) || timeInSeconds < 0) {
+        return;
+    }
+
+    try {
+        localStorage.setItem(AMBIENT_AUDIO_TIME_STORAGE_KEY, String(timeInSeconds));
+    } catch (error) {
+        // Ignore storage errors silently (e.g. private mode)
+    }
+}
+
+function restoreAmbientAudioTime(audio) {
+    if (!audio) {
+        return;
+    }
+
+    const savedTime = getAmbientAudioTime();
+    if (!savedTime) {
+        return;
+    }
+
+    const applySavedTime = () => {
+        const duration = Number.isFinite(audio.duration) && audio.duration > 0
+            ? audio.duration
+            : Infinity;
+        const safeTime = duration === Infinity
+            ? savedTime
+            : Math.min(savedTime, Math.max(duration - 0.5, 0));
+
+        if (safeTime > 0) {
+            audio.currentTime = safeTime;
+        }
+    };
+
+    if (audio.readyState >= 1) {
+        applySavedTime();
+        return;
+    }
+
+    audio.addEventListener('loadedmetadata', applySavedTime, { once: true });
 }
 
 function ensureAmbientAudioStyles() {
@@ -424,6 +481,31 @@ function initAmbientAudio() {
     audio.setAttribute('playsinline', '');
     audio.setAttribute('aria-hidden', 'true');
     audio.hidden = true;
+    restoreAmbientAudioTime(audio);
+
+    let lastPersistAt = 0;
+    const persistCurrentTime = () => {
+        const now = Date.now();
+        if (now - lastPersistAt < 800) {
+            return;
+        }
+        lastPersistAt = now;
+        saveAmbientAudioTime(audio.currentTime);
+    };
+
+    const persistOnHide = () => {
+        saveAmbientAudioTime(audio.currentTime);
+    };
+
+    audio.addEventListener('timeupdate', persistCurrentTime);
+    audio.addEventListener('pause', persistOnHide);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            persistOnHide();
+        }
+    });
+    window.addEventListener('pagehide', persistOnHide);
+    window.addEventListener('beforeunload', persistOnHide);
 
     const toggleButton = document.createElement('button');
     toggleButton.id = 'ambient-audio-toggle';
